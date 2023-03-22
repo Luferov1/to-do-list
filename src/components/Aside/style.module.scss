@@ -1,0 +1,20 @@
+.aside {
+  width: 20%;
+}
+
+.header {
+  font-size: 25px;
+  margin-bottom: 30px;
+}
+
+.subHeader {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.tagsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 30px;
+}
