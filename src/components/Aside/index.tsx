@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from './style.module.scss';
 import { ITagState } from '../../interfaces';
-import TagButton from '../ToDoItemEdit/TagButton';
+import TagButton from '../TagButton';
 
 interface Props {
   state: ITagState[]
