@@ -1,6 +1,6 @@
-import { IToDOView } from '../interfaces';
+import { IToDoView } from '../interfaces';
 
-const createUniqueArrayOfTags = (arr: IToDOView[]) => [...new Set(arr
+const createUniqueArrayOfTags = (arr: IToDoView[]) => [...new Set(arr
   .map(({ tags }) => tags)
   .reduce((acc, item) => [...acc, ...item], []))]
   .map((item) => ({
