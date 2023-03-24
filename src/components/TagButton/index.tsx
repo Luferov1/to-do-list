@@ -1,5 +1,5 @@
 import React from 'react';
-import { ITagState } from '../../../interfaces';
+import { ITagState } from '../../interfaces';
 import styles from './style.module.scss';
 
 interface Props {
