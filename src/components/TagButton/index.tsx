@@ -1,28 +1,27 @@
 import React from 'react';
-import { ITagState } from '../../interfaces';
 import styles from './style.module.scss';
+import { useAppDispatch, useAppSelector } from '../../hooks';
+import { mainPageSlice } from '../../store/reducers/mainPageSlice';
 
 interface Props {
-  state: ITagState[],
-  setState: React.Dispatch<React.SetStateAction<ITagState[]>>
   index: number
 }
 
-const TagButton = ({ state, setState, index }: Props) => (
-  <button
-    type="button"
-    className={state[index].isActive ? styles.tagButton_active : styles.tagButton_disabled}
-    onClick={() => {
-      const newState = [...state];
-      newState[index] = {
-        ...newState[index],
-        isActive: !newState[index].isActive,
-      };
-      setState(newState);
-    }}
-  >
-    {String(state[index].name)}
-  </button>
-);
+const TagButton = ({ index }: Props) => {
+  const dispatch = useAppDispatch();
+  const { tags } = useAppSelector((state) => state.mainPageReducer);
+  const { changeTagState } = mainPageSlice.actions;
+  return (
+    <button
+      type="button"
+      className={tags[index].isActive ? styles.tagButton_active : styles.tagButton_disabled}
+      onClick={() => {
+        dispatch(changeTagState(index));
+      }}
+    >
+      {String(tags[index].name)}
+    </button>
+  );
+};
 
 export default TagButton;

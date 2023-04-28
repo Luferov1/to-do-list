@@ -1,79 +1,78 @@
 import React, { useState } from 'react';
 import styles from './style.module.scss';
-import { IToDOItemEditProps, IToDOItemEditState } from '../../../interfaces';
-import createUniqueArrayOfTags from '../../../functions';
 import Tag from '../../Tag';
+import { useAppDispatch, useAppSelector, useError } from '../../../hooks';
+import { mainPageSlice } from '../../../store/reducers/mainPageSlice';
+import { createUniqueID } from '../../../functions';
+import { zeroToDoState } from '../../../constants/zeroToDoState';
+import { TNewTodo } from '../../../interfaces';
 
-const ToDoItemEdit = ({
-  data, setData, setTags, index, setEditing, isNew, isEditing,
-}: IToDOItemEditProps) => {
-  const { header, text, tags } = isNew
-    ? {
-      header: '',
-      text: '',
-      tags: [],
-    }
-    : data[index];
-  const initialState: IToDOItemEditState = {
-    newHeader: header,
-    newText: text,
-    newTags: tags,
-    newTagText: '',
-  };
-  const [state, setState] = useState(initialState);
-  const [isError, setError] = useState(false);
+interface Props {
+  isNew: boolean,
+  index: number
+}
+const ToDoItemEdit = ({ index, isNew }: Props) => {
+  const dispatch = useAppDispatch();
+  const { todos } = useAppSelector((state) => state.mainPageReducer);
   const {
-    newHeader, newText, newTags, newTagText,
-  } = state;
+    setToDoState, refreshTags, toggleIsNewEditing,
+  } = mainPageSlice.actions;
+  const { header, text, activeTags } = todos[index] || zeroToDoState;
+  const [newToDoState, setNewToDoState] = useState<TNewTodo>({ header, text, activeTags });
+  const [newTagText, setNewTagText] = useState('');
+  const [isError, toggleError] = useError();
+  const tagsArr = [...newToDoState.activeTags];
+  const tagClickHandler = () => {
+    const indexOfTag = tagsArr.indexOf(text);
+    tagsArr.splice(indexOfTag, 1);
+    setNewToDoState({ ...newToDoState, activeTags: tagsArr });
+  };
   return (
     <div className={styles.container}>
       <input
         type="text"
         className={styles.headerInput}
-        value={newHeader}
+        value={newToDoState.header}
         onChange={(e: React.FormEvent<HTMLInputElement>) => {
-          setState({ ...state, newHeader: e.currentTarget.value });
+          setNewToDoState({ ...newToDoState, header: e.currentTarget.value });
         }}
         maxLength={25}
         required
       />
       <textarea
         className={styles.text}
-        value={newText}
+        value={newToDoState.text}
         onChange={(e: React.FormEvent<HTMLTextAreaElement>) => {
-          setState({ ...state, newText: e.currentTarget.value });
+          setNewToDoState({ ...newToDoState, text: e.currentTarget.value });
         }}
         maxLength={240}
         required
       />
-      {!isNew
-        ? (
-          <div className={styles.colorForText}>
-            {text.split(' ').map((item) => (
-              <span className={
-                data[index].tags.includes(item)
+      {!isNew && (
+      <div className={styles.colorForText}>
+        {text.split(' ').map((item) => (
+          <span
+            className={
+                todos[index].activeTags.includes(item)
                   ? styles.coloredSpan
                   : undefined
               }
-              >
-                {`${item} \u0020`}
-              </span>
-            ))}
-          </div>
-        )
-        : null}
+            key={createUniqueID(item)}
+          >
+            {`${item} \u0020`}
+          </span>
+        ))}
+      </div>
+      )}
 
       <div className={styles.tags}>
-        {newTags.map((item) => (
+        {newToDoState.activeTags.map((item) => (
           <Tag
-            key={`${item}${Math.random()}`}
+            key={createUniqueID(item)}
             text={item}
-            isEditing={isEditing}
-            data={data}
-            setData={setData}
-            setTags={setTags}
             index={index}
             isNew={isNew}
+            onClick={tagClickHandler}
           />
         ))}
       </div>
@@ -83,18 +82,14 @@ const ToDoItemEdit = ({
           className={styles.tagsInput}
           value={newTagText}
           onChange={(e: React.FormEvent<HTMLInputElement>) => {
-            setState({ ...state, newTagText: e.currentTarget.value });
+            setNewTagText(e.currentTarget.value);
           }}
         />
         <button
           type="button"
           className={styles.addTagButton}
           onClick={() => {
-            setState({
-              ...state,
-              newTags: [...newTags, newTagText.split(' ').join('')],
-              newTagText: '',
-            });
+            setNewToDoState({ ...newToDoState, activeTags: [...newToDoState.activeTags, newTagText.split(' ').join('')] });
           }}
         >
           Add tag
@@ -104,31 +99,32 @@ const ToDoItemEdit = ({
         type="button"
         className={styles.saveButton}
         onClick={() => {
-          if (!newHeader.length || !newText.length || !newTags.length) {
-            setError(true);
-            setTimeout(() => setError(false), 3000);
+          if (!newToDoState.header.length
+            || !newToDoState.text.length
+            || !newToDoState.activeTags.length) {
+            toggleError();
             return;
           }
-          const tagsInText = newText.split(' ').filter((item) => item.startsWith('#'));
+          const tagsInText = newToDoState.text.split(' ').filter((item) => item.startsWith('#'));
           let handledText;
           let newHandledTags: string[] = [];
           if (!tagsInText.length) {
-            handledText = newText;
+            handledText = newToDoState.text;
           } else {
-            handledText = newText.split('').filter((item) => item !== '#').join('');
+            handledText = newToDoState.text.split('').filter((item) => item !== '#').join('');
             newHandledTags = tagsInText.reduce((acc: string[], item) => [
               ...acc, ...item.split('#').filter((word) => word.length !== 0),
             ], []);
           }
-          const newData = data;
-          newData[index] = {
-            header: newHeader,
+          dispatch(setToDoState({
+            ...newToDoState,
+            activeTags: [...newToDoState.activeTags, ...newHandledTags],
             text: handledText,
-            tags: [...newTags, ...newHandledTags],
-          };
-          setData(newData);
-          setEditing(false);
-          setTags(createUniqueArrayOfTags(newData));
+            index,
+            isEditing: false,
+          }));
+          dispatch(refreshTags());
+          dispatch(toggleIsNewEditing(false));
         }}
       >
         Save
@@ -136,7 +132,14 @@ const ToDoItemEdit = ({
       <button
         type="button"
         className={styles.cancelButton}
-        onClick={() => setEditing(false)}
+        onClick={() => {
+          if (isNew) {
+            dispatch(toggleIsNewEditing(false));
+          } else {
+            dispatch(setToDoState({ ...todos[index], isEditing: false, index }));
+          }
+          setNewToDoState(zeroToDoState);
+        }}
       >
         Cancel
       </button>

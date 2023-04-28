@@ -1,39 +1,39 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styles from './style.module.scss';
 import ToDoItemEdit from '../ToDoItem/ToDoItemEdit';
-import { IToDoItemProps } from '../../interfaces';
+import { useAppDispatch, useAppSelector } from '../../hooks';
+import { mainPageSlice } from '../../store/reducers/mainPageSlice';
 
-const NewToDoItem = ({
-  data, index, setData, setTags,
-}: IToDoItemProps) => {
-  const [isEditing, setEditing] = useState(false);
+const NewToDoItem = () => {
+  const dispatch = useAppDispatch();
+  const { todos, isNewToDoEditing } = useAppSelector((state) => state.mainPageReducer);
+  const { toggleIsNewEditing, setEditing } = mainPageSlice.actions;
+  const index = todos.length;
   return (
-    <div className={isEditing ? styles.container_editing : styles.container}>
+    <div className={isNewToDoEditing ? styles.container_editing : styles.container}>
 
-      {isEditing
+      {isNewToDoEditing
         ? (
           <>
             <button
               type="button"
-              onClick={() => setEditing(false)}
+              onClick={() => dispatch(toggleIsNewEditing(false))}
             >
               cancel
             </button>
             <ToDoItemEdit
-              data={data}
               index={index}
-              setEditing={setEditing}
-              setTags={setTags}
-              setData={setData}
               isNew
-              isEditing
             />
           </>
         )
         : (
           <button
             type="button"
-            onClick={() => setEditing(true)}
+            onClick={() => {
+              dispatch(toggleIsNewEditing(true));
+              dispatch(setEditing(-1));
+            }}
           >
             create new TODO
           </button>

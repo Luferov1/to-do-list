@@ -1,33 +1,28 @@
-import React, { useState } from 'react';
+import React from 'react';
 import ToDoItemEdit from './ToDoItemEdit';
 import ToDoItemView from './ToDoItemView';
-import { IToDoItemProps } from '../../interfaces';
+import { useAppSelector } from '../../hooks';
+
+interface Props {
+  index: number,
+}
 
 const ToDoItem = ({
-  data, index, setData, setTags,
-}: IToDoItemProps) => {
-  const [isEditing, setEditing] = useState(false);
+  index,
+}: Props) => {
+  const { todos } = useAppSelector((state) => state.mainPageReducer);
+  const { isEditing } = todos[index];
   return (
     isEditing
       ? (
         <ToDoItemEdit
-          data={data}
-          setData={setData}
-          setTags={setTags}
           index={index}
-          setEditing={setEditing}
           isNew={false}
-          isEditing={isEditing}
         />
       )
       : (
         <ToDoItemView
-          data={data}
-          setData={setData}
-          setTags={setTags}
           index={index}
-          setEditing={setEditing}
-          isEditing={isEditing}
         />
       )
   );

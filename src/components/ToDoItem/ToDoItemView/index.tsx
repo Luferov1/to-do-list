@@ -1,44 +1,49 @@
 import React from 'react';
 import styles from './style.module.scss';
-import { IToDoItemViewNProps } from '../../../interfaces';
-import createUniqueArrayOfTags from '../../../functions';
 import Tag from '../../Tag';
+import { useAppDispatch, useAppSelector } from '../../../hooks';
+import { mainPageSlice } from '../../../store/reducers/mainPageSlice';
+import { createUniqueID } from '../../../functions';
 
-const ToDoItemView = ({
-  data, setData, setTags, index, setEditing, isEditing,
-}: IToDoItemViewNProps) => {
+interface Props {
+  index: number,
+}
+
+const ToDoItemView = ({ index }: Props) => {
+  const dispatch = useAppDispatch();
+  const { todos } = useAppSelector((state) => state.mainPageReducer);
   const {
-    header, text, tags,
-  } = data[index];
+    setEditing, deleteToDo, refreshTags, toggleIsNewEditing,
+  } = mainPageSlice.actions;
+  const {
+    header, text, activeTags,
+  } = todos[index];
   const deleteItem = () => {
-    const newData = data;
-    newData.splice(index, 1);
-    const newTagsData = createUniqueArrayOfTags(newData);
-    setData(newData);
-    setTags(newTagsData);
+    dispatch(deleteToDo(index));
+    dispatch(refreshTags());
   };
   return (
     <div className={styles.container}>
       <h2 className={styles.header}>{header}</h2>
       <p className={styles.text}>{text}</p>
       <div className={styles.tags}>
-        {tags.map((item) => (
+        {activeTags.map((item) => (
           <Tag
-            key={`${item}${Math.random()}`}
+            key={createUniqueID(item)}
             text={item}
-            isEditing={isEditing}
-            data={data}
-            setData={setData}
-            setTags={setTags}
             index={index}
             isNew={false}
+            onClick={undefined}
           />
         ))}
       </div>
       <button
         type="button"
         className={styles.editButton}
-        onClick={() => setEditing(true)}
+        onClick={() => {
+          dispatch(setEditing(index));
+          dispatch(toggleIsNewEditing(false));
+        }}
       >
         Edit
       </button>

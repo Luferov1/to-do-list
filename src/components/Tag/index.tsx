@@ -1,46 +1,31 @@
-import React, { useState } from 'react';
-import { ITagState, IToDoView } from '../../interfaces';
+import React from 'react';
 import styles from './style.module.scss';
-import createUniqueArrayOfTags from '../../functions';
+import { useAppSelector } from '../../hooks';
 
 interface Props {
   text: string,
-  isEditing: boolean,
-  data: IToDoView[],
-  setData: React.Dispatch<React.SetStateAction<IToDoView[]>>,
-  setTags: React.Dispatch<React.SetStateAction<ITagState[]>>,
-  index: number
-  isNew: boolean
+  index: number,
+  isNew: boolean,
+  onClick: React.MouseEventHandler<HTMLInputElement> | undefined,
 }
 
 const Tag = ({
-  text, isEditing, setData, setTags, data, index, isNew,
+  text, index, isNew, onClick,
 }: Props) => {
-  const [isError, setError] = useState(false);
+  const { todos, isNewToDoEditing } = useAppSelector((state) => state.mainPageReducer);
+  const isEditing = isNew ? isNewToDoEditing : todos[index].isEditing;
   return (
     <div className={styles.tag}>
       <span className={styles.text}>{text}</span>
-      {isEditing && !isNew
+      {isEditing
         ? (
           <input
             className={styles.deleteButton}
             type="button"
-            onClick={() => {
-              if (data[index].tags.length === 1) {
-                setError(true);
-                setTimeout(() => setError(false), 3000);
-              } else {
-                const indexOfTag = data[index].tags.indexOf(text);
-                const newData = data;
-                newData[index].tags.splice(indexOfTag, 1);
-                setData(newData);
-                setTags(createUniqueArrayOfTags(newData));
-              }
-            }}
+            onClick={onClick}
           />
         )
         : null }
-      {isError ? <span className={styles.error}>You must have at least 1 tag</span> : null}
     </div>
   );
 };

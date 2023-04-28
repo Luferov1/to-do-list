@@ -1,27 +1,12 @@
 import React from 'react';
 import styles from './style.module.scss';
-import { ITagState } from '../../interfaces';
-import TagButton from '../TagButton';
+import TagButtonsContainer from '../TagButtonsContainer';
 
-interface Props {
-  state: ITagState[]
-  setState: React.Dispatch<React.SetStateAction<ITagState[]>>
-}
-
-const Aside = ({ state, setState }: Props) => (
+const Aside = () => (
   <aside className={styles.aside}>
     <h2 className={styles.header}>created by Luferov1</h2>
     <h3 className={styles.subHeader}>Filter by tags</h3>
-    <div className={styles.tagsContainer}>
-      {state.map((item, index) => (
-        <TagButton
-          state={state}
-          setState={setState}
-          index={index}
-          key={String(item.name)}
-        />
-      ))}
-    </div>
+    <TagButtonsContainer />
   </aside>
 );
 

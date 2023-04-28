@@ -3,7 +3,12 @@ import React from 'react';
 export interface IToDoView {
   header: string,
   text: string,
-  tags: string[]
+  activeTags: string[],
+  isEditing: boolean,
+}
+
+export interface IToDoViewForDispatch extends IToDoView {
+  index: number
 }
 
 export interface ITagState {
@@ -11,11 +16,13 @@ export interface ITagState {
   isActive: boolean
 }
 
-export interface IArticleProps {
-  data: IToDoView[],
-  setData: React.Dispatch<React.SetStateAction<IToDoView[]>>,
-  tagsData: ITagState[]
-  setTags: React.Dispatch<React.SetStateAction<ITagState[]>>
+export type TNewTodo = Omit<IToDoView, 'isEditing'>;
+
+export interface MainPageStore {
+  todos: IToDoView[],
+  tags: ITagState[],
+  newToDo: TNewTodo,
+  isNewToDoEditing: boolean,
 }
 
 export interface IToDoItemProps {
@@ -32,11 +39,4 @@ export interface IToDoItemViewNProps extends IToDoItemProps {
 
 export interface IToDOItemEditProps extends IToDoItemViewNProps {
   isNew: boolean
-}
-
-export interface IToDOItemEditState {
-  newHeader: string,
-  newText: string,
-  newTags: string[],
-  newTagText: string
 }
