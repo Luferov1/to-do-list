@@ -2,14 +2,11 @@ import React from 'react';
 import ToDoItemEdit from './ToDoItemEdit';
 import ToDoItemView from './ToDoItemView';
 import { useAppSelector } from '../../hooks';
-
-interface Props {
-  index: number,
-}
+import { IndexOnly } from '../../interfaces';
 
 const ToDoItem = ({
   index,
-}: Props) => {
+}: IndexOnly) => {
   const { todos } = useAppSelector((state) => state.mainPageReducer);
   const { isEditing } = todos[index];
   return (

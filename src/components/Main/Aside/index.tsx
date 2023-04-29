@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from './style.module.scss';
-import TagButtonsContainer from '../TagButtonsContainer';
+import TagButtonsContainer from '../../Containers/TagButtonsContainer';
 
 const Aside = () => (
   <aside className={styles.aside}>

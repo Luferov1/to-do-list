@@ -20,26 +20,3 @@
   text-align: left;
   padding: 3px;
 }
-
-.tags {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  height: 45px;
-  margin-top: 20px;
-}
-
-.editButton,
-.deleteButton {
-  position: absolute;
-  bottom: 10px;
-}
-
-.editButton {
-  left: 10px;
-}
-
-.deleteButton {
-  right: 10px;
-}

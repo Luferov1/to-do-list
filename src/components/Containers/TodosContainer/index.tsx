@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { useAppSelector } from '../../hooks';
-import { createUniqueID, filterTodos } from '../../functions';
-import ToDoItem from '../ToDoItem';
+import { useAppSelector } from '../../../hooks';
+import { createUniqueID, filterTodos } from '../../../functions';
+import ToDoItem from '../../ToDoItem';
 
 const TodosContainer = () => {
   const { tags, todos } = useAppSelector((state) => state.mainPageReducer);

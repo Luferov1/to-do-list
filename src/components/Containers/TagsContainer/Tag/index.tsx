@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from './style.module.scss';
-import { useAppSelector } from '../../hooks';
+import { useAppSelector } from '../../../../hooks';
 
 interface Props {
   text: string,
@@ -17,15 +17,13 @@ const Tag = ({
   return (
     <div className={styles.tag}>
       <span className={styles.text}>{text}</span>
-      {isEditing
-        ? (
-          <input
-            className={styles.deleteButton}
-            type="button"
-            onClick={onClick}
-          />
-        )
-        : null }
+      {isEditing && (
+      <input
+        className={styles.deleteButton}
+        type="button"
+        onClick={onClick}
+      />
+      )}
     </div>
   );
 };

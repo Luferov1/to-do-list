@@ -1,15 +1,21 @@
 import React, { useState } from 'react';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import styles from './style.module.scss';
-import Tag from '../../Tag';
 import { useAppDispatch, useAppSelector, useError } from '../../../hooks';
 import { mainPageSlice } from '../../../store/reducers/mainPageSlice';
-import { createUniqueID } from '../../../functions';
-import { zeroToDoState } from '../../../constants/zeroToDoState';
-import { TNewTodo } from '../../../interfaces';
+import { createInitialInputState, giveHandledTextAndTags } from '../../../functions';
+import { Inputs } from '../../../interfaces';
+import HeaderInput from '../../Inputs/HeaderInput';
+import TextInput from '../../Inputs/TextInput';
+import ColorForText from '../../ColorForText';
+import TagsContainer from '../../Containers/TagsContainer';
+import CancelEditingToDoButton from '../../Buttons/CancelEditingToDoButton';
+import SubmitToDoButton from '../../Buttons/SubmitToDoButton';
+import TagsAdder from '../../TagsAdder';
 
 interface Props {
   isNew: boolean,
-  index: number
+  index: number,
 }
 const ToDoItemEdit = ({ index, isNew }: Props) => {
   const dispatch = useAppDispatch();
@@ -17,136 +23,57 @@ const ToDoItemEdit = ({ index, isNew }: Props) => {
   const {
     setToDoState, refreshTags, toggleIsNewEditing,
   } = mainPageSlice.actions;
-  const { header, text, activeTags } = todos[index] || zeroToDoState;
-  const [newToDoState, setNewToDoState] = useState<TNewTodo>({ header, text, activeTags });
-  const [newTagText, setNewTagText] = useState('');
+
+  const initialInputValues = createInitialInputState(todos[index], isNew);
+  const {
+    register, handleSubmit, getValues, formState: { errors }, resetField, watch,
+  } = useForm<Inputs>({ defaultValues: initialInputValues });
+  const headerInput = register('header', { required: true, maxLength: 25 });
+  const textarea = register('text', { required: true, maxLength: 240 });
+  const tagsInput = register('tagsInput', { maxLength: 25, minLength: 1 });
+
   const [isError, toggleError] = useError();
-  const tagsArr = [...newToDoState.activeTags];
+  const initialTags = isNew ? [] : todos[index].activeTags;
+  const [tags, setTags] = useState(initialTags);
+
   const tagClickHandler = () => {
-    const indexOfTag = tagsArr.indexOf(text);
-    tagsArr.splice(indexOfTag, 1);
-    setNewToDoState({ ...newToDoState, activeTags: tagsArr });
+    const indexOfTag = tags.indexOf(getValues('text'));
+    const newTags = [...tags];
+    newTags.splice(indexOfTag, 1);
+    setTags(newTags);
+  };
+  const onSubmit: SubmitHandler<Inputs> = (data) => {
+    if (errors.text || errors.header || tags.length === 0) {
+      toggleError();
+      return;
+    }
+    const [handledText, handledTags] = giveHandledTextAndTags(data.text, tags);
+    dispatch(setToDoState({
+      activeTags: [...tags, ...handledTags],
+      text: handledText,
+      index,
+      isEditing: false,
+      header: data.header,
+    }));
+    dispatch(refreshTags());
+    dispatch(toggleIsNewEditing(false));
+  };
+  const setTag = () => {
+    const value = getValues('tagsInput');
+    if (!tags.includes(value)) setTags([...tags, value]);
+    resetField('tagsInput');
   };
   return (
-    <div className={styles.container}>
-      <input
-        type="text"
-        className={styles.headerInput}
-        value={newToDoState.header}
-        onChange={(e: React.FormEvent<HTMLInputElement>) => {
-          setNewToDoState({ ...newToDoState, header: e.currentTarget.value });
-        }}
-        maxLength={25}
-        required
-      />
-      <textarea
-        className={styles.text}
-        value={newToDoState.text}
-        onChange={(e: React.FormEvent<HTMLTextAreaElement>) => {
-          setNewToDoState({ ...newToDoState, text: e.currentTarget.value });
-        }}
-        maxLength={240}
-        required
-      />
-      {!isNew && (
-      <div className={styles.colorForText}>
-        {text.split(' ').map((item) => (
-          <span
-            className={
-                todos[index].activeTags.includes(item)
-                  ? styles.coloredSpan
-                  : undefined
-              }
-            key={createUniqueID(item)}
-          >
-            {`${item} \u0020`}
-          </span>
-        ))}
-      </div>
-      )}
-
-      <div className={styles.tags}>
-        {newToDoState.activeTags.map((item) => (
-          <Tag
-            key={createUniqueID(item)}
-            text={item}
-            index={index}
-            isNew={isNew}
-            onClick={tagClickHandler}
-          />
-        ))}
-      </div>
-      <div className={styles.tagsAdder}>
-        <input
-          type="text"
-          className={styles.tagsInput}
-          value={newTagText}
-          onChange={(e: React.FormEvent<HTMLInputElement>) => {
-            setNewTagText(e.currentTarget.value);
-          }}
-        />
-        <button
-          type="button"
-          className={styles.addTagButton}
-          onClick={() => {
-            setNewToDoState({ ...newToDoState, activeTags: [...newToDoState.activeTags, newTagText.split(' ').join('')] });
-          }}
-        >
-          Add tag
-        </button>
-      </div>
-      <button
-        type="button"
-        className={styles.saveButton}
-        onClick={() => {
-          if (!newToDoState.header.length
-            || !newToDoState.text.length
-            || !newToDoState.activeTags.length) {
-            toggleError();
-            return;
-          }
-          const tagsInText = newToDoState.text.split(' ').filter((item) => item.startsWith('#'));
-          let handledText;
-          let newHandledTags: string[] = [];
-          if (!tagsInText.length) {
-            handledText = newToDoState.text;
-          } else {
-            handledText = newToDoState.text.split('').filter((item) => item !== '#').join('');
-            newHandledTags = tagsInText.reduce((acc: string[], item) => [
-              ...acc, ...item.split('#').filter((word) => word.length !== 0),
-            ], []);
-          }
-          dispatch(setToDoState({
-            ...newToDoState,
-            activeTags: [...newToDoState.activeTags, ...newHandledTags],
-            text: handledText,
-            index,
-            isEditing: false,
-          }));
-          dispatch(refreshTags());
-          dispatch(toggleIsNewEditing(false));
-        }}
-      >
-        Save
-      </button>
-      <button
-        type="button"
-        className={styles.cancelButton}
-        onClick={() => {
-          if (isNew) {
-            dispatch(toggleIsNewEditing(false));
-          } else {
-            dispatch(setToDoState({ ...todos[index], isEditing: false, index }));
-          }
-          setNewToDoState(zeroToDoState);
-        }}
-      >
-        Cancel
-      </button>
-      {isError
-        ? <div className={styles.error}>You must enter name, text and at least 1 tag</div>
-        : null}
-    </div>
+    <form className={styles.container} onSubmit={handleSubmit(onSubmit)}>
+      <HeaderInput params={headerInput} ref={headerInput.ref} />
+      <TextInput params={textarea} ref={textarea.ref} />
+      {!isNew && <ColorForText index={index} text={watch('text')} />}
+      <TagsContainer activeTags={tags} index={index} isNew={isNew} onClick={tagClickHandler} />
+      <TagsAdder tagsInput={tagsInput} onClick={setTag} />
+      <SubmitToDoButton />
+      <CancelEditingToDoButton index={index} isNew={isNew} />
+      {isError && <div className={styles.error}>You must enter name, text and at least 1 tag</div>}
+    </form>
   );
 };
 

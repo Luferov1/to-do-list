@@ -1,13 +1,10 @@
 import React from 'react';
 import styles from './style.module.scss';
-import { useAppDispatch, useAppSelector } from '../../hooks';
-import { mainPageSlice } from '../../store/reducers/mainPageSlice';
+import { useAppDispatch, useAppSelector } from '../../../hooks';
+import { mainPageSlice } from '../../../store/reducers/mainPageSlice';
+import { IndexOnly } from '../../../interfaces';
 
-interface Props {
-  index: number
-}
-
-const TagButton = ({ index }: Props) => {
+const TagButton = ({ index }: IndexOnly) => {
   const dispatch = useAppDispatch();
   const { tags } = useAppSelector((state) => state.mainPageReducer);
   const { changeTagState } = mainPageSlice.actions;

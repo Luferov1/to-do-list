@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from './style.module.scss';
-import TagButton from '../TagButton';
-import { useAppSelector } from '../../hooks';
+import TagButton from '../../Buttons/TagButton';
+import { useAppSelector } from '../../../hooks';
 
 const TagButtonsContainer = () => {
   const { tags } = useAppSelector((state) => state.mainPageReducer);

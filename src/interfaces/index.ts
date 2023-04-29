@@ -1,4 +1,4 @@
-import React from 'react';
+import { UseFormRegisterReturn } from 'react-hook-form';
 
 export interface IToDoView {
   header: string,
@@ -25,18 +25,20 @@ export interface MainPageStore {
   isNewToDoEditing: boolean,
 }
 
-export interface IToDoItemProps {
-  data: IToDoView[],
-  setData: React.Dispatch<React.SetStateAction<IToDoView[]>>,
-  setTags: React.Dispatch<React.SetStateAction<ITagState[]>>,
+export interface IndexOnly {
   index: number
 }
 
-export interface IToDoItemViewNProps extends IToDoItemProps {
-  isEditing: boolean,
-  setEditing: React.Dispatch<React.SetStateAction<boolean>>
+export interface Inputs {
+  header: string,
+  text: string,
+  tagsInput: string
 }
 
-export interface IToDOItemEditProps extends IToDoItemViewNProps {
-  isNew: boolean
+export type InputNames = 'header' | 'text' | 'tagsInput';
+
+export type InputType = UseFormRegisterReturn<InputNames>;
+
+export interface InputInterface {
+  params: InputType
 }
