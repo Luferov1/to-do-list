@@ -1,0 +1,16 @@
+.colorForText {
+  position: absolute;
+  width: 80%;
+  height: 100px;
+  padding: 3px;
+  text-align: left;
+  overflow: hidden;
+  top: 72px;
+  background-color: transparent;
+  color: transparent;
+  z-index: -1;
+}
+
+.coloredSpan {
+  background-color: green;
+}

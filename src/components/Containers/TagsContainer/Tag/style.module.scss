@@ -1,0 +1,44 @@
+.tag_deleted {
+  display: none;
+}
+
+.tag {
+  height: 20px;
+  min-width: 50px;
+  background-color: purple;
+  color: white;
+  padding: 10px;
+  border-radius: 10px;
+  position: relative;
+}
+
+.text {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  font-size: 10px;
+}
+
+.deleteButton {
+  display: block;
+  position: absolute;
+  width: 12px;
+  height: 2px;
+  border-radius: 2px;
+  background-color: red;
+  top: 1px;
+  right: 1px;
+}
+
+.error {
+  position: absolute;
+  width: 200px;
+  height: 100%;
+  color: black;
+  background-color: white;
+  transform: translateX(-50%);
+  top: 0;
+  left: 0;
+}

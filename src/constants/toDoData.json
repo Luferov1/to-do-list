@@ -1,0 +1,23 @@
+[
+  {
+    "header": "Start going to the gym",
+    "text": "Gym is very important for the health, I should do it",
+    "activeTags": [
+      "sport",
+      "health",
+      "man"
+    ],
+    "isEditing": false
+  },
+  {
+    "header": "Check weather",
+    "text": "You must check the weather before you go",
+    "activeTags": [
+      "weather",
+      "important",
+      "clothes"
+    ],
+    "isEditing": false
+  }
+]
+
